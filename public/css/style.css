@@ -503,11 +503,17 @@ body > .scanlines {
 
 /* ---------- 约束条件选择器 ---------- */
 .constraints-section {
-  margin-top: 26px;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* 两列下拉框并排 */
+.constraints-row {
   display: flex;
   gap: 10px;
 }
-.constraints-section > .constraint-select-wrapper {
+.constraints-row > .constraint-select-wrapper {
   flex: 1;
 }
 
@@ -590,7 +596,7 @@ body > .scanlines {
 .actions {
   display: flex;
   gap: 12px;
-  margin-top: 26px;
+  margin-top: 18px;
 }
 
 .btn {
@@ -1081,9 +1087,8 @@ body > .scanlines {
     padding: 22px 18px;
   }
   /* 约束选择器：小屏单列 */
-  .constraints-section {
+  .constraints-row {
     flex-direction: column;
-    gap: 10px;
   }
   .actions {
     flex-direction: column;

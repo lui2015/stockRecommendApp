@@ -24,7 +24,6 @@
   <!-- Hero 标题区 -->
   <section class="hero">
     <h1>求一票</h1>
-    <p class="hero-sub">万一您想的一样呢</p>
   </section>
 
   <!-- 老虎机区域 -->
@@ -55,34 +54,36 @@
   <!-- 约束条件 -->
   <div class="constraints-section">
     <label class="constraints-label" for="constraintSelect">⚙️ 许愿条件（可选）</label>
-    <div class="constraint-select-wrapper">
-      <select class="constraint-select" id="constraintSelect">
-        <option value="">不限，全凭运气</option>
-        <option value="A股">只看 A 股</option>
-        <option value="港股">只看 港股</option>
-        <option value="美股">只看 美股</option>
-      </select>
-      <span class="select-arrow"></span>
-    </div>
+    <div class="constraints-row">
+      <div class="constraint-select-wrapper">
+        <select class="constraint-select" id="constraintSelect">
+          <option value="">不限，全凭运气</option>
+          <option value="A股">只看 A 股</option>
+          <option value="港股">只看 港股</option>
+          <option value="美股">只看 美股</option>
+        </select>
+        <span class="select-arrow"></span>
+      </div>
 
-    <!-- 板块筛选 -->
-    <div class="constraint-select-wrapper" style="margin-top:10px;">
-      <select class="constraint-select" id="sectorSelect">
-        <option value="">不限板块</option>
-        <option value="科技/半导体">🔬 科技 / 半导体</option>
-        <option value="新能源/光伏/锂电">⚡ 新能源 / 光伏 / 锂电</option>
-        <option value="医药生物/创新药">💊 医药生物 / 创新药</option>
-        <option value="消费/食品饮料">🍜 消费 / 食品饮料</option>
-        <option value="金融/银行/保险">🏦 金融 / 银行 / 保险</option>
-        <option value="房地产/基建">🏗️ 房地产 / 基建</option>
-        <option value="军工/航天航空">🚀 军工 / 航天航空</option>
-        <option value="传媒/游戏/AI应用">🎮 传媒 / 游戏 / AI 应用</option>
-        <option value="汽车/智能驾驶">🚗 汽车 / 智能驾驶</option>
-        <option value="化工/原材料">🧪 化工 / 原材料</option>
-        <option value="农业/种业">🌾 农业 / 种业</option>
-        <option value="通信/5G/6G">📡 通信 / 5G / 6G</option>
-      </select>
-      <span class="select-arrow"></span>
+      <!-- 板块筛选 -->
+      <div class="constraint-select-wrapper">
+        <select class="constraint-select" id="sectorSelect">
+          <option value="">不限板块</option>
+          <option value="科技/半导体">🔬 科技 / 半导体</option>
+          <option value="新能源/光伏/锂电">⚡ 新能源 / 光伏 / 锂电</option>
+          <option value="医药生物/创新药">💊 医药生物 / 创新药</option>
+          <option value="消费/食品饮料">🍜 消费 / 食品饮料</option>
+          <option value="金融/银行/保险">🏦 金融 / 银行 / 保险</option>
+          <option value="房地产/基建">🏗️ 房地产 / 基建</option>
+          <option value="军工/航天航空">🚀 军工 / 航天航空</option>
+          <option value="传媒/游戏/AI应用">🎮 传媒 / 游戏 / AI 应用</option>
+          <option value="汽车/智能驾驶">🚗 汽车 / 智能驾驶</option>
+          <option value="化工/原材料">🧪 化工 / 原材料</option>
+          <option value="农业/种业">🌾 农业 / 种业</option>
+          <option value="通信/5G/6G">📡 通信 / 5G / 6G</option>
+        </select>
+        <span class="select-arrow"></span>
+      </div>
     </div>
   </div>
 
