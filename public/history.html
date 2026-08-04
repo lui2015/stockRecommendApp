@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>求一票 · 我的记录</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="history-page">
+<div class="app">
+
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <a href="index.html" class="back-btn" aria-label="返回首页">←</a>
+    <span class="topbar-title">我的记录</span>
+    <div style="width:36px"></div><!-- 占位保持标题居中 -->
+  </header>
+
+  <h2 class="history-title">历史推荐</h2>
+
+  <!-- 列表容器 -->
+  <div id="historyList"></div>
+
+</div>
+
+<!-- 导航侧边栏 -->
+<div class="nav-drawer-overlay" id="navOverlay"></div>
+<nav class="nav-drawer" id="navDrawer" role="navigation" aria-label="导航菜单">
+  <div class="nav-drawer-header">导航</div>
+  <a class="nav-link" href="index.html"><span class="nav-icon">🏠</span> 首页 · 求一票</a>
+  <a class="nav-link" href="history.html"><span class="nav-icon">📋</span> 我的记录</a>
+</nav>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="js/common.js"></script>
+<script src="js/history.js"></script>
+</body>
+</html>

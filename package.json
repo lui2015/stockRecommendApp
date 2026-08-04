@@ -1,0 +1,21 @@
+{
+  "name": "qiu-yi-piao",
+  "version": "1.0.0",
+  "private": true,
+  "description": "求一票 - 摇一摇 AI 荐股娱乐工具",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "uuid": "^9.0.1"
+  }
+}

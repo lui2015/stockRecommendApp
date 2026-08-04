@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="description" content="求一票 — AI 智能荐股娱乐工具，摇一摇获取股票推荐" />
+<title>求一票 · AI 荐股娱乐</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<!-- 扫描线效果 -->
+<div class="scanlines"></div>
+<!-- 庆祝粒子容器 -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<div class="app">
+
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <span class="topbar-title">求一票</span>
+    <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  </header>
+
+  <!-- Hero 标题区 -->
+  <section class="hero">
+    <div class="hero-icon">🎰</div>
+    <h1>求一票</h1>
+    <p class="hero-sub">万一您想的一样呢</p>
+  </section>
+
+  <!-- 老虎机区域 -->
+  <div class="slot-wrapper" id="slotWrapper">
+    <div class="slot-lights" id="slotLights"></div>
+    <div class="slot-label">STOCK CODE</div>
+    <div class="slot-area" id="slotArea">
+      <div class="slot-digit" data-idx="0">0</div>
+      <div class="slot-digit" data-idx="1">0</div>
+      <div class="slot-digit" data-idx="2">0</div>
+      <div class="slot-digit" data-idx="3">3</div>
+      <div class="slot-digit" data-idx="4">3</div>
+      <div class="slot-digit" data-idx="5">3</div>
+    </div>
+  </div>
+
+  <!-- 结果卡片 -->
+  <div class="result-card" id="resultCard">
+    <div class="result-label">心想事成</div>
+    <div class="result-name" id="resultName"><span class="waiting-icon">🎰</span>等待摇奖…</div>
+    <div class="result-code-row">
+      <span class="result-code" id="resultCode">------</span>
+      <span class="result-price" id="resultPrice"></span>
+    </div>
+    <p class="result-reason" id="resultReason"></p>
+  </div>
+
+  <!-- 约束条件 -->
+  <div class="constraints-section">
+    <label class="constraints-label" for="constraintSelect">⚙️ 许愿条件（可选）</label>
+    <div class="constraint-select-wrapper">
+      <select class="constraint-select" id="constraintSelect">
+        <option value="">不限，全凭运气</option>
+        <option value="A股">只看 A 股</option>
+        <option value="港股">只看 港股</option>
+        <option value="美股">只看 美股</option>
+      </select>
+      <span class="select-arrow"></span>
+    </div>
+
+    <!-- 板块筛选 -->
+    <div class="constraint-select-wrapper" style="margin-top:10px;">
+      <select class="constraint-select" id="sectorSelect">
+        <option value="">不限板块</option>
+        <option value="科技/半导体">🔬 科技 / 半导体</option>
+        <option value="新能源/光伏/锂电">⚡ 新能源 / 光伏 / 锂电</option>
+        <option value="医药生物/创新药">💊 医药生物 / 创新药</option>
+        <option value="消费/食品饮料">🍜 消费 / 食品饮料</option>
+        <option value="金融/银行/保险">🏦 金融 / 银行 / 保险</option>
+        <option value="房地产/基建">🏗️ 房地产 / 基建</option>
+        <option value="军工/航天航空">🚀 军工 / 航天航空</option>
+        <option value="传媒/游戏/AI应用">🎮 传媒 / 游戏 / AI 应用</option>
+        <option value="汽车/智能驾驶">🚗 汽车 / 智能驾驶</option>
+        <option value="化工/原材料">🧪 化工 / 原材料</option>
+        <option value="农业/种业">🌾 农业 / 种业</option>
+        <option value="通信/5G/6G">📡 通信 / 5G / 6G</option>
+      </select>
+      <span class="select-arrow"></span>
+    </div>
+  </div>
+
+  <!-- 标签 -->
+  <div class="tags-section" id="tagsSection"></div>
+
+  <!-- 操作按钮 -->
+  <div class="actions">
+    <button class="btn btn-primary" id="drawBtn">
+      <span class="btn-icon">🎲</span>
+      <span class="btn-text">摇一摇</span>
+    </button>
+    <button class="btn btn-secondary" id="saveBtn" disabled>
+      <span class="btn-icon">💾</span>
+      <span class="btn-text">保存本次</span>
+    </button>
+  </div>
+
+  <!-- 免责声明 -->
+  <p class="disclaimer">
+    本结果由AI大模型生成，可能非实时/准确数据，仅供娱乐参考，不构成投资建议。股市有风险，投资需谨慎独立判断。
+  </p>
+
+</div>
+
+<!-- 导航侧边栏 -->
+<div class="nav-drawer-overlay" id="navOverlay"></div>
+<nav class="nav-drawer" id="navDrawer" role="navigation" aria-label="导航菜单">
+  <div class="nav-drawer-header">导航</div>
+  <a class="nav-link" href="index.html"><span class="nav-icon">🏠</span> 首页 · 求一票</a>
+  <a class="nav-link" href="history.html"><span class="nav-icon">📋</span> 我的记录</a>
+</nav>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="js/common.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

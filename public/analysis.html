@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>求一票 · 分析报告</title>
+<link rel="stylesheet" href="css/analysis.css" />
+</head>
+<body class="analysis-page">
+
+<div class="analysis-page">
+
+  <!-- 顶部导航 -->
+  <header class="analysis-header">
+    <a href="index.html" class="back-btn" aria-label="返回首页">←</a>
+    <div class="analysis-title">
+      <h1 id="stockName">加载中…</h1>
+      <div class="analysis-meta">
+        <span class="stock-code-badge" id="stockCode">--</span>
+        <span class="analysis-time" id="analysisTime"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 加载状态 -->
+  <div id="loadingState" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>正在生成深度分析报告…</p>
+  </div>
+
+  <!-- 错误状态 -->
+  <div id="errorState" class="error-state hidden">
+    <p>⚠️ 加载失败，请返回重试</p>
+    <br />
+    <a href="index.html" style="color: var(--accent); text-decoration: none;">← 返回首页</a>
+  </div>
+
+  <!-- 报告内容 -->
+  <div id="reportContent" class="hidden">
+
+    <!-- 概要 -->
+    <section class="summary-card">
+      <h2>📋 推荐概要</h2>
+      <p class="summary-reason" id="summaryReason"></p>
+    </section>
+
+    <!-- 圆桌讨论 -->
+    <section class="roundtable-section">
+      <h2>🎙️ 四派圆桌讨论</h2>
+      <div id="roundtableList"></div>
+    </section>
+
+    <!-- 风险提示 -->
+    <section class="risks-section">
+      <h2>⚠️ 风险提示</h2>
+      <ul class="risks-list" id="risksList"></ul>
+    </section>
+
+    <!-- 免责声明 -->
+    <p class="disclaimer">
+      本报告由 AI 大模型生成，仅供娱乐参考，不构成投资建议。股市有风险，投资需谨慎独立判断。
+    </p>
+
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="js/common.js"></script>
+<script src="js/analysis.js"></script>
+</body>
+</html>
