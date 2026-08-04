@@ -427,7 +427,7 @@ body > .scanlines {
   gap: 10px;
 }
 .waiting-icon {
-  font-size: 0.85em;
+  font-size: 1.1em;
   animation: heroPulse 2.5s ease-in-out infinite;
 }
 
@@ -504,6 +504,11 @@ body > .scanlines {
 /* ---------- 约束条件选择器 ---------- */
 .constraints-section {
   margin-top: 26px;
+  display: flex;
+  gap: 10px;
+}
+.constraints-section > .constraint-select-wrapper {
+  flex: 1;
 }
 
 .constraints-label {
@@ -1074,6 +1079,11 @@ body > .scanlines {
   }
   .result-card {
     padding: 22px 18px;
+  }
+  /* 约束选择器：小屏单列 */
+  .constraints-section {
+    flex-direction: column;
+    gap: 10px;
   }
   .actions {
     flex-direction: column;
