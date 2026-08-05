@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>我的自选 · 求一票</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/favorites.css" />
+</head>
+<body>
+<div class="scanlines"></div>
+
+<div class="app">
+
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <a class="topbar-back" href="index.html">← 返回</a>
+    <span class="topbar-title">我的自选</span>
+    <div style="width:40px;"></div>
+  </header>
+
+  <!-- 页面标题 -->
+  <section class="fav-hero">
+    <h1>⭐ 我的自选股</h1>
+    <p class="fav-subtitle">摇一摇后点击「+ 自选」即可收藏关注</p>
+  </section>
+
+  <!-- 自选列表 -->
+  <div id="favListContainer">
+    <!-- 加载中 -->
+    <div class="fav-loading" id="favLoading">
+      <div class="fav-loading-spinner"></div>
+      <p>加载自选列表…</p>
+    </div>
+
+    <!-- 空状态 -->
+    <div class="fav-empty hidden" id="favEmpty">
+      <span class="fav-empty-icon">📭</span>
+      <p>还没有自选股票</p>
+      <p class="fav-empty-hint">去首页摇一摇，遇到心仪的股票点「+ 自选」</p>
+      <a href="index.html" class="btn btn-primary fav-empty-btn">
+        <span class="btn-icon">🎲</span> 去摇一摇
+      </a>
+    </div>
+
+    <!-- 列表 -->
+    <div class="fav-list hidden" id="favList"></div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="js/common.js"></script>
+<script src="js/my-favorites.js"></script>
+</body>
+</html>

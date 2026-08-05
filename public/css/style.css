@@ -453,6 +453,68 @@ body > .scanlines {
   100% { transform: scale(1); }
 }
 
+/* ========== + 自选按钮（星标收藏） ========== */
+.fav-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 200, 120, 0.5);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  padding: 0;
+  line-height: 1;
+}
+
+.fav-btn::before {
+  content: '☆';
+  transition: all 0.35s ease;
+}
+
+.fav-btn:hover {
+  background: rgba(255, 200, 60, 0.1);
+  border-color: rgba(255, 200, 60, 0.25);
+  color: var(--gold);
+  transform: scale(1.12) rotate(5deg);
+}
+
+.fav-btn:active {
+  transform: scale(0.92);
+}
+
+/* 已选状态 */
+.fav-btn.favorited {
+  background: linear-gradient(135deg, rgba(255, 200, 60, 0.15), rgba(255, 150, 40, 0.08));
+  border-color: rgba(255, 200, 60, 0.3);
+  color: var(--gold);
+  box-shadow: 0 0 16px rgba(255, 200, 60, 0.15), inset 0 0 8px rgba(255, 200, 60, 0.05);
+  animation: favStarPulse 2s ease-in-out infinite;
+}
+
+.fav-btn.favorited::before {
+  content: '★';
+  text-shadow: 0 0 8px rgba(255, 200, 60, 0.6);
+}
+
+.fav-btn.favorited:hover {
+  box-shadow: 0 0 24px rgba(255, 200, 60, 0.25), inset 0 0 10px rgba(255, 200, 60, 0.08);
+  transform: scale(1.12) rotate(-5deg);
+}
+
+@keyframes favStarPulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(255, 200, 60, 0.15), inset 0 0 8px rgba(255, 200, 60, 0.05); }
+  50% { box-shadow: 0 0 22px rgba(255, 200, 60, 0.28), inset 0 0 12px rgba(255, 200, 60, 0.08); }
+}
+
 .result-name {
   font-size: clamp(26px, 6.5vw, 36px);
   font-weight: 900;

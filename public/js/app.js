@@ -42,6 +42,7 @@
   const reasonModal = document.getElementById('reasonModal');
   const reasonModalBody = document.getElementById('reasonModalBody');
   const reasonModalClose = document.getElementById('reasonModalClose');
+  const favBtn = document.getElementById('favBtn');
 
   let lastResult = null;
   let lightChaseTimer = null;
@@ -186,6 +187,9 @@
     saveBtn.disabled = true;
     lastResult = null;
 
+    // 隐藏自选按钮
+    favBtn.classList.add('hidden');
+
     // 移除"点击卡片查看深度分析报告"提示
     const oldHint = document.getElementById('detailHint');
     if (oldHint) oldHint.remove();
@@ -322,6 +326,11 @@
     saveBtn.disabled = false;
     lastResult = data;
 
+    // 显示自选按钮并检查状态
+    favBtn.classList.remove('hidden', 'favorited');
+    favBtn.title = '加入自选';
+    checkFavoriteStatus(data.code);
+
     // 恢复空闲灯效
     setTimeout(idleLightBlink, 2000);
   }
@@ -426,6 +435,60 @@
       drawBtn.disabled = false;
     }
   }
+
+  // ========== 自选股逻辑 ==========
+  let isFavorited = false;
+
+  async function checkFavoriteStatus(code) {
+    if (!code) return;
+    try {
+      const resp = await QYP.api(`api/favorites/check/${encodeURIComponent(code)}`);
+      isFavorited = !!resp.isFavorite;
+      updateFavBtnUI();
+    } catch (e) { /* 静默 */ }
+  }
+
+  function updateFavBtnUI() {
+    if (isFavorited) {
+      favBtn.classList.add('favorited');
+      favBtn.title = '已自选，点击取消';
+    } else {
+      favBtn.classList.remove('favorited');
+      favBtn.title = '加入自选';
+    }
+  }
+
+  async function toggleFavorite() {
+    if (!lastResult || !lastResult.code) return;
+    try {
+      if (isFavorited) {
+        await QYP.api(`api/favorites/${encodeURIComponent(lastResult.code)}`, { method: 'DELETE' });
+        isFavorited = false;
+        QYP.toast('已取消自选');
+      } else {
+        await QYP.api('api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: lastResult.code,
+            name: lastResult.name,
+            market: lastResult.market || 'A股',
+            price: lastResult.price || null,
+          }),
+        });
+        isFavorited = true;
+        QYP.toast('已加入自选 ★');
+      }
+      updateFavBtnUI();
+    } catch (err) {
+      QYP.toast(err && err.message ? err.message : '操作失败');
+    }
+  }
+
+  favBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFavorite();
+  });
 
   drawBtn.addEventListener('click', () => {
     closeNav();

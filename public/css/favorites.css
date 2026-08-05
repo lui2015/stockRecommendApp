@@ -1,0 +1,254 @@
+/* ========== 我的自选页面 ========== */
+
+.fav-hero {
+  text-align: center;
+  padding: 24px 16px 8px;
+}
+
+.fav-hero h1 {
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gold), #ff9500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+
+.fav-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* 加载状态 */
+.fav-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.fav-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 空状态 */
+.fav-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.fav-empty-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.fav-empty p {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.fav-empty-hint {
+  font-size: 13px !important;
+  color: var(--text-muted);
+  margin-bottom: 20px !important;
+}
+
+.fav-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  font-size: 14px;
+}
+
+/* 自选列表 */
+.fav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px 40px;
+}
+
+/* 自选卡片 */
+.fav-item {
+  background: linear-gradient(145deg, var(--bg-card) 0%, #150a0d 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.fav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--gold), #ff9500);
+  opacity: 0.7;
+}
+
+.fav-item:hover {
+  border-color: rgba(255, 200, 60, 0.3);
+  box-shadow: 0 4px 20px rgba(255, 200, 60, 0.08);
+  transform: translateY(-1px);
+}
+
+.fav-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fav-item-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.fav-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.fav-item-code {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-weight: 600;
+  color: var(--red-bright);
+  background: var(--red-soft);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12.5px;
+}
+
+.fav-item-market {
+  font-size: 11.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-light);
+}
+
+.fav-item-time {
+  font-size: 11.5px;
+  opacity: 0.6;
+}
+
+/* 价格区域 */
+.fav-item-prices {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.fav-item-ref-price {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.fav-price-arrow {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.fav-item-real-price {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.fav-item-change {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.fav-item-diff {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 80, 80, 0.08);
+}
+
+.price-up { color: #4ade80; }
+.price-down { color: #f87171; }
+
+.price-up .fav-item-diff { background: rgba(74, 222, 128, 0.1); }
+.price-down .fav-item-diff { background: rgba(248, 113, 113, 0.1); }
+
+/* 操作按钮区 */
+.fav-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.fav-item-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.fav-item-btn-analyze {
+  background: rgba(100, 120, 255, 0.12);
+  color: #8b9bff;
+  border: 1px solid rgba(100, 120, 255, 0.2);
+}
+
+.fav-item-btn-analyze:hover {
+  background: rgba(100, 120, 255, 0.22);
+  color: #a8b5ff;
+}
+
+.fav-item-btn-remove {
+  background: rgba(255, 80, 80, 0.08);
+  color: #ff7070;
+  border: 1px solid rgba(255, 80, 80, 0.15);
+}
+
+.fav-item-btn-remove:hover {
+  background: rgba(255, 80, 80, 0.18);
+  color: #ff9090;
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+  .fav-hero h1 { font-size: 19px; }
+  .fav-item { padding: 14px 16px; }
+  .fav-item-name { font-size: 15px; }
+  .fav-item-btn { padding: 5px 10px; font-size: 11.5px; }
+}

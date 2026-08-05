@@ -79,4 +79,19 @@ db.exec(`
   );
 `);
 
+// favorites：用户自选股列表，按设备隔离
+db.exec(`
+  CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_id TEXT NOT NULL,
+    code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    market TEXT DEFAULT 'A股',
+    price REAL,
+    added_at TEXT NOT NULL,
+    UNIQUE(device_id, code)
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS idx_favorites_device ON favorites(device_id);`);
+
 module.exports = db;
