@@ -127,6 +127,38 @@
     resultName.appendChild(wrap);
   }
 
+  // ---------- 摇号中 label 文案交替 ----------
+  const LABEL_PHRASES = ['心想事成', '万事如愿', '好运连连', '财源广进', '步步高升'];
+  let labelCycleTimer = null;
+  let labelCycleIdx = 0;
+
+  function startLabelCycle() {
+    stopLabelCycle();
+    const labelEl = document.getElementById('resultLabel');
+    if (!labelEl) return;
+    labelCycleIdx = 0;
+    labelEl.textContent = LABEL_PHRASES[0];
+    labelEl.classList.add('label-cycling');
+    labelCycleTimer = setInterval(() => {
+      labelCycleIdx = (labelCycleIdx + 1) % LABEL_PHRASES.length;
+      labelEl.textContent = LABEL_PHRASES[labelCycleIdx];
+      // 每次切换触发一次缩放动效
+      labelEl.style.animation = 'none';
+      labelEl.offsetHeight; // force reflow
+      labelEl.style.animation = 'labelPop 0.4s ease-out';
+    }, 800);
+  }
+
+  function stopLabelCycle() {
+    if (labelCycleTimer) { clearInterval(labelCycleTimer); labelCycleTimer = null; }
+    const labelEl = document.getElementById('resultLabel');
+    if (labelEl) {
+      labelEl.classList.remove('label-cycling');
+      labelEl.textContent = '心想事成';
+      labelEl.style.animation = '';
+    }
+  }
+
   // ---------- 开始滚动 ----------
   function startRolling() {
     // 清除之前的定时器
@@ -145,12 +177,18 @@
     startLightChase();
 
     renderRollingText();
-    resultCode.textContent = '------';
+    startLabelCycle();
+    resultCode.textContent = '';
     resultPrice.textContent = '';
     resultReason.textContent = '';
+    resultReason.classList.remove('has-reason');
     tagsSection.innerHTML = '';
     saveBtn.disabled = true;
     lastResult = null;
+
+    // 移除"点击卡片查看深度分析报告"提示
+    const oldHint = document.getElementById('detailHint');
+    if (oldHint) oldHint.remove();
 
     // 快速随机滚动
     digits.forEach((d) => {
@@ -165,6 +203,7 @@
   function stopRolling(finalText) {
     slotWrapper.classList.remove('shaking');
     stopLightChase();
+    stopLabelCycle();
 
     // 清除快速滚动定时器
     rollingTimers.forEach(t => clearInterval(t));
@@ -252,6 +291,11 @@
     }
     resultPrice.innerHTML = priceHtml;
     resultReason.textContent = data.summaryReason || '';
+    if (data.summaryReason) {
+      resultReason.classList.add('has-reason');
+    } else {
+      resultReason.classList.remove('has-reason');
+    }
 
     // 点击提示
     const existingHint = document.getElementById('detailHint');
@@ -285,7 +329,33 @@
   // ---------- 推荐理由点击弹框 ----------
   function openReasonModal(text) {
     if (!text) return;
-    reasonModalBody.textContent = text;
+
+    // 按数字编号拆分为段落：1) 2) 3)
+    const parts = text.split(/(?=\d\)\s*【)/);
+    let html = '';
+
+    parts.forEach((part, i) => {
+      const trimmed = part.trim();
+      if (!trimmed) return;
+      // 提取维度标签如【基本面】
+      const labelMatch = trimmed.match(/【([^】]+)】/);
+      const label = labelMatch ? labelMatch[1] : (i === 0 ? '推荐理由' : '');
+      // 去掉开头的 "1)【xxx】" 前缀用于正文
+      const content = trimmed.replace(/^\d+\)\s*【[^】]+】\s*/, '');
+
+      html += `<div class="reason-para">
+        <span class="reason-label">${label}</span>
+        <p class="reason-text">${content}</p>
+      </div>`;
+    });
+
+    // 底部总结
+    html += `<div class="reason-summary">
+      <span class="reason-summary-icon">💡</span>
+      <span class="reason-summary-text">综合来看，该股在基本面、消息面、技术面均具备一定看点，建议关注。</span>
+    </div>`;
+
+    reasonModalBody.innerHTML = html;
     reasonModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }

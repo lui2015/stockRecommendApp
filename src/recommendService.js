@@ -7,16 +7,16 @@
  * 「荐股 Skill」（stock-recommend-skill）本质是运行在 WorkBuddy/CodeBuddy Agent 环境里的技能，
  * 它依赖平台内置的 westock-tool / westock-data（真实行情与财务数据查询）以及 stock-analysis
  * （可视化报告生成）等 Agent 工具——这些工具没有对外开放的 HTTP API，普通 Node 后端服务无法直接
- * “调用”这个 Skill。
+ * "调用"这个 Skill。
  *
- * 因此本服务采用的落地方案是：把 Skill README 中公开的“六位投资大师分析框架”和输出规范固化为
- * 系统提示词（System Prompt），由后端直接调用腾讯混元大模型完成“筛选与理由生成”的语言层工作，
+ * 因此本服务采用的落地方案是：把 Skill README 中公开的"六位投资大师分析框架"和输出规范固化为
+ * 系统提示词（System Prompt），由后端直接调用腾讯混元大模型完成"筛选与理由生成"的语言层工作，
  * 并强制模型以结构化 JSON 返回，服务端做严格解析与兜底校验。
  *
  * 重要局限（务必让用户知晓，并已体现在前端免责声明中）：
  * 本方案没有接入真实行情/财务数据源，模型给出的行情数据基于其训练知识，可能不是最新/准确数据，
  * 仅供娱乐参考。若后续部署环境具备调用 westock-tool/westock-data 的能力，应替换本文件为真实数据
- * 查询 + 大模型仅做文本组织的方案，以符合 Skill 原始设计（“数字说话，禁止用模型记忆补数据”）。
+ * 查询 + 大模型仅做文本组织的方案，以符合 Skill 原始设计（"数字说话，禁止用模型记忆补数据"）。
  */
 
 const { chatCompletion, HunyuanError } = require('./hunyuanClient');
@@ -25,13 +25,13 @@ const { fetchLatestQuote } = require('./quoteService');
 const ALLOWED_MARKETS = ['A股', '港股', '美股'];
 const ALLOWED_STYLES = ['价值', '成长', '高股息', '低估值', '红利'];
 const MAX_FREE_TEXT_LEN = 20;
-const MAX_SUMMARY_LEN = 60;
+const MAX_SUMMARY_LEN = 200;
 
 const BLESSINGS = ['恭喜发财', '好运连连', '万事顺遂', '喜从天降', '心想事成'];
 
 const MARKET_CURRENCY = { A股: '元', 港股: '港元', 美股: '美元' };
 
-const SYSTEM_PROMPT = `你是“求一票”App 的选股引擎，融合六位投资大师的分析视角，从股票市场中挑选出恰好一只标的并给出理由。
+const SYSTEM_PROMPT = `你是"求一票"App 的选股引擎，融合六位投资大师的分析视角，从股票市场中挑选出恰好一只标的并给出理由。
 
 六位大师的分析框架（必须逐一体现）：
 1. 沃伦·巴菲特：护城河（毛利率水平与稳定性、ROE连续性）
@@ -44,8 +44,8 @@ const SYSTEM_PROMPT = `你是“求一票”App 的选股引擎，融合六位�
 硬性规则：
 - 只输出一只股票，不给并列候选。
 - 必须包含至少 2 条具体的反面风险提示，不能只说好话。
-- 不得使用“必涨”“稳赚”“目标价必达”“内幕”“跟庄”等承诺性/诱导性用语。
-- 不得编造无法自证的具体财务数字为确凿事实，如涉及数据请使用“据公开资料”等表述并保持谨慎、克制的语气。
+- 不得使用"必涨""稳赚""目标价必达""内幕""跟庄"等承诺性/诱导性用语。
+- 不得编造无法自证的具体财务数字为确凿事实，如涉及数据请使用"据公开资料"等表述并保持谨慎、克制的语气。
 - 严格只输出 JSON，不要输出任何 JSON 之外的文字、不要使用代码块围栏。
 
 JSON 输出格式（字段必须齐全）：
@@ -55,7 +55,7 @@ JSON 输出格式（字段必须齐全）：
   "market": "A股/港股/美股 之一",
   "price": "当前参考股价的数值（如 1680.00），不含货币单位，基于你的训练知识给出合理估算即可",
   "tags": ["1~3个核心标签，如 高股息、低估值、AI概念、高送转"],
-  "summaryReason": "1~2句话的推荐理由，40字以内，通俗易懂，说清楚“为什么选它”",
+  "summaryReason": "推荐理由，80~150字，必须从以下三个维度展开分析：1)【基本面】公司核心业务、盈利能力（ROE/毛利率）、估值水平（PE/PB分位）、现金流状况等；2)【消息面】近期行业政策、公司公告、市场热点或催化剂事件；3)【技术面】股价走势形态、关键支撑/压力位、量价关系、均线系统等。用通俗语言组织，让普通投资者能快速理解为什么选这只股票",
   "roundtable": [
     {"master": "沃伦·巴菲特", "viewpoint": "……"},
     {"master": "段永平", "viewpoint": "……"},
@@ -133,7 +133,7 @@ function validateResult(obj) {
 }
 
 /**
- * 生成一次“求票”推荐结果。
+ * 生成一次"求票"推荐结果。
  * @param {object} rawConstraints 前端传入的约束（market/sector/style）
  * @returns {Promise<object>} 结构化推荐结果（未落库，不含 requestId）
  */
@@ -150,7 +150,7 @@ async function generateRecommendation(rawConstraints, recentCodes = []) {
   let lastValid = null;
   let lastRawContent = '';
 
-  // 最多重试 4 次：兼顾 JSON 合法性校验与“避免重复最近抽过的标的”
+  // 最多重试 4 次：兼顾 JSON 合法性校验与"避免重复最近抽过的标的"
   const MAX_ATTEMPTS = 4;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
     if (attempt > 0) {

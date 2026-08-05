@@ -434,6 +434,23 @@ body > .scanlines {
   letter-spacing: 3px;
   text-transform: uppercase;
   margin-bottom: 14px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* label 文案交替动效 */
+.result-label.label-cycling {
+  animation: labelGlow 1.6s ease-in-out infinite;
+}
+
+@keyframes labelGlow {
+  0%, 100% { color: var(--gold); text-shadow: 0 0 8px rgba(255, 200, 60, 0.3); }
+  50% { color: #ffe066; text-shadow: 0 0 16px rgba(255, 200, 60, 0.6), 0 0 32px rgba(255, 150, 50, 0.2); }
+}
+
+@keyframes labelPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 .result-name {
@@ -535,6 +552,12 @@ body > .scanlines {
   border: 1px solid rgba(255,60,60,0.2);
 }
 
+/* 等待状态下隐藏空的代码行 */
+.result-code-row:empty,
+.result-code:empty {
+  display: none;
+}
+
 .result-price {
   font-size: 20px;
   font-weight: 800;
@@ -587,13 +610,17 @@ body > .scanlines {
   cursor: pointer;
   transition: color 0.2s ease, opacity 0.2s ease;
   position: relative;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .result-reason:hover {
   color: var(--text-primary);
   opacity: 0.85;
 }
-/* 点击提示箭头 */
-.result-reason::after {
+/* 点击提示箭头 - 仅在有理由时显示 */
+.result-reason.has-reason::after {
   content: '查看详情 →';
   display: block;
   font-size: 11px;
@@ -1035,6 +1062,61 @@ position: fixed;
   font-weight: 700;
   margin: 20px 0 10px;
   color: var(--text-primary);
+}
+
+/* 弹框内容 */
+#reasonModalBody {
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 推荐理由段落 */
+.reason-para {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--red-bright);
+  background: rgba(255, 60, 60, 0.04);
+  border-radius: 0 8px 8px 0;
+}
+
+.reason-label {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--red-bright);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.reason-text {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.8;
+}
+
+/* 底部总结 */
+.reason-summary {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(255, 60, 60, 0.12), rgba(255, 150, 50, 0.08));
+  border-radius: 10px;
+  border: 1px solid rgba(255, 100, 50, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reason-summary-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.reason-summary-text {
+  font-size: 13.5px;
+  color: rgba(255, 220, 180, 0.9);
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 .roundtable-list { margin-bottom: 8px; }
