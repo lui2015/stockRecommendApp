@@ -21,6 +21,26 @@
   <!-- 列表容器 -->
   <div id="historyList"></div>
 
+  <!-- 空状态 -->
+  <div class="empty-state hidden" id="historyEmpty">
+    <div class="empty-icon">📭</div>
+    <p class="empty-text">还没有保存的求票记录</p>
+    <a class="empty-link" href="index.html">去摇一摇 →</a>
+  </div>
+
+</div>
+
+<!-- 推荐理由弹窗 -->
+<div class="modal hidden" id="detailModal">
+  <div class="modal-mask" id="modalMask"></div>
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose" aria-label="关闭">×</button>
+    <h2>推荐理由</h2>
+    <h3>🎙️ 大师圆桌</h3>
+    <div class="roundtable-list" id="roundtableList"></div>
+    <h3>⚠️ 风险提示</h3>
+    <ul class="risks-list" id="risksList"></ul>
+  </div>
 </div>
 
 <!-- 导航侧边栏 -->

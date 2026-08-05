@@ -13,6 +13,9 @@ const analysisRouter = require('./src/routes/analysis');
 const app = express();
 const PORT = Number(process.env.PORT || 3210);
 
+// nginx 反代场景：信任 X-Forwarded-* 头（否则 express-rate-limit 会拒绝带这些头的请求）
+app.set('trust proxy', 1);
+
 app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' }));
 app.use(deviceIdMiddleware);

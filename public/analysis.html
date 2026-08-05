@@ -6,66 +6,111 @@
 <title>求一票 · 分析报告</title>
 <link rel="stylesheet" href="css/analysis.css" />
 </head>
-<body class="analysis-page">
+<body class="analysis-page-body">
 
 <div class="analysis-page">
 
-  <!-- 顶部导航 -->
   <header class="analysis-header">
-    <a href="index.html" class="back-btn" aria-label="返回首页">←</a>
+    <button type="button" class="back-btn" id="backBtn" aria-label="返回">←</button>
     <div class="analysis-title">
-      <h1 id="stockName">加载中…</h1>
+      <h1 id="rptName">加载中…</h1>
       <div class="analysis-meta">
-        <span class="stock-code-badge" id="stockCode">--</span>
-        <span class="analysis-time" id="analysisTime"></span>
+        <span class="analysis-sub" id="rptSub"></span>
       </div>
+      <div class="price-row">
+     <span class="price" id="rptPrice"></span>
+   <span class="change" id="rptChange"></span>
+    </div>
     </div>
   </header>
 
-  <!-- 加载状态 -->
   <div id="loadingState" class="loading-state">
     <div class="loading-spinner"></div>
-    <p>正在生成深度分析报告…</p>
+  <p>正在生成深度分析报告…</p>
   </div>
 
-  <!-- 错误状态 -->
   <div id="errorState" class="error-state hidden">
-    <p>⚠️ 加载失败，请返回重试</p>
-    <br />
-    <a href="index.html" style="color: var(--accent); text-decoration: none;">← 返回首页</a>
+    <p id="errorMsg">⚠️ 加载失败，请返回重试</p>
+    <div class="error-actions">
+      <button type="button" class="retry-btn" id="retryBtn">🔄 重新加载</button>
+      <a href="index.html" class="back-link">← 返回首页</a>
+ </div>
   </div>
 
-  <!-- 报告内容 -->
-  <div id="reportContent" class="hidden">
+  <div id="reportContainer" class="hidden">
 
-    <!-- 概要 -->
-    <section class="summary-card">
-      <h2>📋 推荐概要</h2>
-      <p class="summary-reason" id="summaryReason"></p>
+    <section class="rpt-section">
+      <h2>📊 关键指标</h2>
+      <div class="snapshot-grid" id="snapshotGrid"></div>
+      <p class="data-note" id="dataNote"></p>
     </section>
 
-    <!-- 圆桌讨论 -->
-    <section class="roundtable-section">
+    <section class="rpt-section">
+      <h2>📈 近5年股价中位数</h2>
+      <div class="chart-box">
+  <canvas id="medianChart"></canvas>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+<th>年份</th>
+            <th>中位数</th>
+   <th>最高</th>
+          <th>最低</th>
+         <th>交易日</th>
+      </tr>
+      </thead>
+    <tbody id="medianTbody"></tbody>
+          <tfoot id="medianTfoot"></tfoot>
+</table>
+      </div>
+      <p class="data-note" id="medianNote"></p>
+    </section>
+
+    <section class="rpt-section">
+      <h2>💰 盈利能力</h2>
+      <div class="chart-box">
+        <canvas id="profitChart"></canvas>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>年份</th>
+              <th>净利润</th>
+     <th>同比</th>
+    <th>营收</th>
+     <th>毛利率</th>
+              <th>ROE</th>
+ </tr>
+    </thead>
+  <tbody id="profitTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="rpt-section">
+ <h2>🌍 宏观环境</h2>
+    <div class="macro-box" id="macroBox"></div>
+    </section>
+
+    <section class="rpt-section">
       <h2>🎙️ 四派圆桌讨论</h2>
-      <div id="roundtableList"></div>
+      <div class="roundtable-box" id="roundtableBox"></div>
     </section>
 
-    <!-- 风险提示 -->
-    <section class="risks-section">
-      <h2>⚠️ 风险提示</h2>
-      <ul class="risks-list" id="risksList"></ul>
+    <section class="rpt-section">
+      <h2>🧭 综合结论</h2>
+      <div class="summary-card" id="summaryCard"></div>
     </section>
 
-    <!-- 免责声明 -->
-    <p class="disclaimer">
-      本报告由 AI 大模型生成，仅供娱乐参考，不构成投资建议。股市有风险，投资需谨慎独立判断。
-    </p>
+    <p class="disclaimer" id="disclaimerText"></p>
 
   </div>
 
 </div>
 
-<!-- Toast -->
 <div class="toast hidden" id="toast"></div>
 
 <script src="js/common.js"></script>

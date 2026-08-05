@@ -181,17 +181,17 @@ body > .scanlines {
 }
 
 .hero h1 {
-  font-size: clamp(34px, 7vw, 52px);
+  font-size: clamp(13px, 3vw, 20px);
   font-weight: 900;
   letter-spacing: 8px;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff3333 30%, #ff0000 60%, #ff3333 80%, #ff6b6b 100%);
+  background: linear-gradient(135deg, #c0392b 0%, #a5281b 30%, #8b1a0e 60%, #a5281b 80%, #c0392b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: fireShimmer 2.5s ease-in-out infinite;
   background-size: 300% 100%;
   text-shadow: none;
-  filter: drop-shadow(0 2px 8px rgba(255,0,0,0.3));
+  filter: drop-shadow(0 2px 8px rgba(139,26,14,0.25));
 }
 @keyframes fireShimmer {
   0% { background-position: 200% 0; }
@@ -405,6 +405,28 @@ body > .scanlines {
   transform: translateY(-6px) scale(1.008);
 }
 
+/* 摇号进行中：卡片顶部流光条 + 整体呼吸光晕 */
+.result-card.drawing::before {
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--red-bright), var(--gold), transparent);
+  background-size: 200% 100%;
+  animation: cardBeam 1.1s linear infinite;
+}
+.result-card.drawing {
+  border-color: rgba(255,80,80,0.3);
+  animation: cardBreathe 1.6s ease-in-out infinite;
+}
+
+@keyframes cardBeam {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes cardBreathe {
+  0%, 100% { box-shadow: var(--shadow-card), 0 0 22px rgba(255,50,50,0.10); }
+  50% { box-shadow: var(--shadow-card), 0 0 46px rgba(255,60,60,0.24); }
+}
+
 .result-label {
   font-size: 12px;
   font-weight: 800;
@@ -429,6 +451,69 @@ body > .scanlines {
 .waiting-icon {
   font-size: 1.1em;
   animation: heroPulse 2.5s ease-in-out infinite;
+}
+
+/* ---------- “摇号中…” 动效文案 ---------- */
+.rolling-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.rt-char {
+  display: inline-block;
+  font-weight: 900;
+  background: linear-gradient(115deg,
+    #fff3b0 0%,
+    var(--gold) 22%,
+    var(--red-bright) 48%,
+    var(--gold) 74%,
+    #fff3b0 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+  rtWave 0.95s ease-in-out infinite,
+    rtFlow 2.2s linear infinite;
+  filter: drop-shadow(0 0 12px var(--gold-glow));
+}
+
+/* 逐字上下弹跳，形成波浪感 */
+@keyframes rtWave {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-0.18em) scale(1.08); }
+  55% { transform: translateY(0.04em) scale(0.97); }
+}
+
+/* 渐变流光横向扫过 */
+@keyframes rtFlow {
+  0% { background-position: 220% 0; }
+  100% { background-position: -220% 0; }
+}
+
+/* 三个跳动光点 */
+.rt-dots {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-left: 8px;
+  padding-bottom: 0.18em;
+}
+
+.rt-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold-glow);
+  animation: rtDot 1.05s ease-in-out infinite;
+}
+
+@keyframes rtDot {
+  0%, 100% { transform: translateY(0) scale(0.7); opacity: 0.35; }
+  40% { transform: translateY(-0.5em) scale(1.15); opacity: 1; }
 }
 
 .result-code-row {
@@ -596,7 +681,7 @@ body > .scanlines {
 .actions {
   display: flex;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 8px;
 }
 
 .btn {
@@ -830,10 +915,49 @@ body > .scanlines {
   border-color: var(--red-hot);
   color: var(--red-hot);
 }
+/* 分析报告：主操作，做高亮区分 */
+.history-item-actions button.btn-report {
+  background: rgba(255,50,50,0.1);
+  border-color: rgba(255,50,50,0.32);
+  color: var(--red-bright);
+}
+.history-item-actions button.btn-report:hover {
+  background: rgba(255,50,50,0.18);
+  border-color: var(--red-bright);
+}
+
+/* ========== 空状态 ========== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+.empty-icon {
+  font-size: 46px;
+  margin-bottom: 14px;
+  opacity: 0.85;
+}
+.empty-text {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.empty-link {
+  display: inline-block;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--red-bright);
+  background: rgba(255,50,50,0.1);
+  border: 1px solid rgba(255,50,50,0.3);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.empty-link:hover { background: rgba(255,50,50,0.18); }
 
 /* ========== 弹窗 Modal ========== */
 .modal {
-  position: fixed;
+position: fixed;
   inset: 0;
   z-index: 1000;
   display: flex;

@@ -13,10 +13,10 @@ const router = express.Router();
 
 const insertDrawStmt = db.prepare(`
   INSERT INTO draws (
-    request_id, device_id, constraints_json, code, name, price, price_unit, tags_json,
+    request_id, device_id, constraints_json, code, name, market, price, price_unit, tags_json,
     summary_reason, roundtable_json, risks_json, data_as_of, created_at
-  ) VALUES (@requestId, @deviceId, @constraintsJson, @code, @name, @price, @priceUnit, @tagsJson,
-    @summaryReason, @roundtableJson, @risksJson, @dataAsOf, @createdAt)
+  ) VALUES (@requestId, @deviceId, @constraintsJson, @code, @name, @market, @price, @priceUnit, @tagsJson,
+  @summaryReason, @roundtableJson, @risksJson, @dataAsOf, @createdAt)
 `);
 
 // 取本设备最近抽过的股票代码，传给推荐服务用于回避重复
@@ -53,6 +53,7 @@ router.post('/draw', perMinuteLimiter, perDayLimiter, async (req, res) => {
       constraintsJson: JSON.stringify(result.constraints || {}),
       code: result.code,
       name: result.name,
+      market: result.market || 'A股',
       price: result.price,
       priceUnit: result.priceUnit,
       tagsJson: JSON.stringify(result.tags || []),

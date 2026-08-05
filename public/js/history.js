@@ -38,6 +38,17 @@
   modalClose.addEventListener('click', () => detailModal.classList.add('hidden'));
   modalMask.addEventListener('click', () => detailModal.classList.add('hidden'));
 
+  // 跳转到个股深度分析报告页（analysis 接口会优先命中预生成缓存）
+  function openAnalysis(item) {
+    if (!item || !item.code) return;
+    const params = new URLSearchParams({
+      code: item.code,
+          name: item.name || '',
+      market: item.market || 'A股',
+    });
+    window.location.href = 'analysis.html?' + params.toString();
+  }
+
   function formatTime(iso) {
     try {
       const d = new Date(iso);
@@ -82,12 +93,17 @@
 
     const actions = document.createElement('div');
     actions.className = 'history-item-actions';
+    const reportBtn = document.createElement('button');
+    reportBtn.textContent = '分析报告';
+    reportBtn.className = 'btn-report';
+    reportBtn.addEventListener('click', () => openAnalysis(item));
     const detailBtn = document.createElement('button');
     detailBtn.textContent = '查看理由';
     detailBtn.addEventListener('click', () => openDetailModal(item));
     const delBtn = document.createElement('button');
     delBtn.textContent = '删除';
     delBtn.addEventListener('click', () => removeItem(item.historyId, div));
+    actions.appendChild(reportBtn);
     actions.appendChild(detailBtn);
     actions.appendChild(delBtn);
 

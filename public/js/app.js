@@ -98,6 +98,32 @@
     digits.forEach((d, i) => { d.textContent = padded[i] || '-'; });
   }
 
+  // ---------- 摇号中动画文案（DOM 构建，不用 innerHTML）----------
+  function renderRollingText() {
+    resultName.textContent = '';
+    const wrap = document.createElement('span');
+    wrap.className = 'rolling-text';
+
+    '摇号中'.split('').forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.className = 'rt-char';
+      s.textContent = ch;
+      s.style.animationDelay = `${i * 0.12}s`;
+      wrap.appendChild(s);
+    });
+
+    const dots = document.createElement('span');
+    dots.className = 'rt-dots';
+    for (let i = 0; i < 3; i += 1) {
+      const dot = document.createElement('i');
+          dot.style.animationDelay = `${i * 0.18}s`;
+      dots.appendChild(dot);
+    }
+    wrap.appendChild(dots);
+
+    resultName.appendChild(wrap);
+  }
+
   // ---------- 开始滚动 ----------
   function startRolling() {
     // 清除之前的定时器
@@ -110,11 +136,12 @@
     });
 
     resultCard.classList.remove('has-result');
+    resultCard.classList.add('drawing');
     slotWrapper.classList.remove('jackpot');
     slotWrapper.classList.add('shaking');
     startLightChase();
 
-    resultName.innerHTML = '摇号中…';
+    renderRollingText();
     resultCode.textContent = '------';
     resultPrice.textContent = '';
     resultReason.textContent = '';
@@ -201,6 +228,7 @@
     slotWrapper.classList.add('jackpot');
     fireConfetti();
 
+    resultCard.classList.remove('drawing');
     resultCard.classList.add('has-result');
     resultName.textContent = data.name || '--';
     resultCode.textContent = data.code || '--';
@@ -293,6 +321,7 @@
         d.classList.remove('rolling', 'stopped');
       });
       slotWrapper.classList.remove('shaking', 'jackpot');
+      resultCard.classList.remove('drawing');
       stopLightChase();
       idleLightBlink();
 

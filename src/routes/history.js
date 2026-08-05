@@ -56,6 +56,7 @@ router.get('/history', requireDeviceId, (req, res) => {
     requestId: row.request_id,
     code: row.code,
     name: row.name,
+    market: row.market || 'A股',
     price: row.price,
     priceUnit: row.price_unit || '元',
     tags: JSON.parse(row.tags_json || '[]'),

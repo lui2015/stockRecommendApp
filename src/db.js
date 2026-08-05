@@ -31,13 +31,16 @@ db.exec(`
   );
 `);
 
-// 兼容旧库：补充 price/price_unit 字段（早期版本无当前参考价格字段）
+// 兼容旧库：补充 price/price_unit/market 字段（早期版本无当前参考价格与市场字段）
 const drawsColumns = db.prepare('PRAGMA table_info(draws)').all().map((c) => c.name);
 if (!drawsColumns.includes('price')) {
   db.exec('ALTER TABLE draws ADD COLUMN price TEXT;');
 }
 if (!drawsColumns.includes('price_unit')) {
   db.exec("ALTER TABLE draws ADD COLUMN price_unit TEXT DEFAULT '元';");
+}
+if (!drawsColumns.includes('market')) {
+  db.exec("ALTER TABLE draws ADD COLUMN market TEXT DEFAULT 'A股';");
 }
 
 // history：用户主动“保存”的记录，仅存引用关系，做归属校验
