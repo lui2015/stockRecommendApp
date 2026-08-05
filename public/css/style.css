@@ -577,13 +577,29 @@ body > .scanlines {
 }
 
 .result-reason {
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-light);
-  font-size: 14px;
-  line-height: 1.75;
+  font-size: 13.5px;
+  line-height: 1.7;
   color: var(--text-secondary);
   text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease, opacity 0.2s ease;
+  position: relative;
+}
+.result-reason:hover {
+  color: var(--text-primary);
+  opacity: 0.85;
+}
+/* 点击提示箭头 */
+.result-reason::after {
+  content: '查看详情 →';
+  display: block;
+  font-size: 11px;
+  color: var(--red-bright);
+  margin-top: 6px;
+  font-weight: 600;
 }
 
 /* ---------- 约束条件选择器 ---------- */

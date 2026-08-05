@@ -39,6 +39,9 @@
   const drawBtn = document.getElementById('drawBtn');
   const saveBtn = document.getElementById('saveBtn');
   const confettiContainer = document.getElementById('confettiContainer');
+  const reasonModal = document.getElementById('reasonModal');
+  const reasonModalBody = document.getElementById('reasonModalBody');
+  const reasonModalClose = document.getElementById('reasonModalClose');
 
   let lastResult = null;
   let lightChaseTimer = null;
@@ -278,6 +281,25 @@
     // 恢复空闲灯效
     setTimeout(idleLightBlink, 2000);
   }
+
+  // ---------- 推荐理由点击弹框 ----------
+  function openReasonModal(text) {
+    if (!text) return;
+    reasonModalBody.textContent = text;
+    reasonModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeReasonModal() {
+    reasonModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  resultReason.addEventListener('click', (e) => {
+    e.stopPropagation(); // 阻止冒泡到卡片跳转
+    const text = (lastResult && lastResult.summaryReason) || resultReason.textContent;
+    if (text) openReasonModal(text);
+  });
+  reasonModalClose.addEventListener('click', closeReasonModal);
+  reasonModal.querySelector('.modal-mask').addEventListener('click', closeReasonModal);
 
   // ---------- 点击结果卡片查看深度分析 ----------
   resultCard.addEventListener('click', () => {
