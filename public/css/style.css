@@ -648,14 +648,14 @@ body > .scanlines {
   pointer-events: none;
 }
 
-/* ---------- 标签 Chips ---------- */
-.tags-section {
-  margin-top: 18px;
-  min-height: 38px;
+/* ---------- 标签 Chips（卡片内）---------- */
+.result-card .tags-section {
+  margin-top: 14px;
+  min-height: auto;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tag-chip {
