@@ -1,6 +1,21 @@
 'use strict';
 
 (function () {
+  // ========== 导航侧边栏 ==========
+  const menuBtn = document.getElementById('menuBtn');
+  const navDrawer = document.getElementById('navDrawer');
+  const navOverlay = document.getElementById('navOverlay');
+  if (menuBtn && navDrawer && navOverlay) {
+    menuBtn.addEventListener('click', () => {
+      navDrawer.classList.add('open');
+      navOverlay.classList.add('show');
+    });
+    navOverlay.addEventListener('click', () => {
+      navDrawer.classList.remove('open');
+      navOverlay.classList.remove('show');
+    });
+  }
+
   const favList = document.getElementById('favList');
   const favLoading = document.getElementById('favLoading');
   const favEmpty = document.getElementById('favEmpty');

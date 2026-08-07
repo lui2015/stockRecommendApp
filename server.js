@@ -10,6 +10,7 @@ const drawRouter = require('./src/routes/draw');
 const historyRouter = require('./src/routes/history');
 const analysisRouter = require('./src/routes/analysis');
 const favoritesRouter = require('./src/routes/favorites');
+const strategyRouter = require('./src/routes/strategy');
 
 const app = express();
 const PORT = Number(process.env.PORT || 3210);
@@ -29,6 +30,7 @@ app.use('/api', drawRouter);
 app.use('/api', historyRouter);
 app.use('/api', analysisRouter);
 app.use('/api', favoritesRouter);
+app.use('/api', strategyRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 

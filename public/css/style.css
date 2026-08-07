@@ -866,6 +866,64 @@ body > .scanlines {
 }
 @keyframes btnSpin { to { transform: rotate(360deg); } }
 
+/* ========== 首页「选股攻略」入口卡片 ========== */
+.strategy-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 4px;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 200, 60, 0.09), rgba(255, 150, 40, 0.04));
+  border: 1px solid rgba(255, 200, 60, 0.22);
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.strategy-entry:hover {
+  border-color: rgba(255, 200, 60, 0.4);
+  box-shadow: 0 4px 20px rgba(255, 200, 60, 0.12);
+  transform: translateY(-1px);
+}
+
+.strategy-entry-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.strategy-entry-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.strategy-entry-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.strategy-entry-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.strategy-entry-arrow {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: var(--gold);
+  opacity: 0.7;
+  transition: transform 0.25s ease;
+}
+
+.strategy-entry:hover .strategy-entry-arrow {
+  transform: translateX(3px);
+  opacity: 1;
+}
+
 /* ---------- 免责声明 ---------- */
 .disclaimer {
   margin-top: 28px;

@@ -16,7 +16,7 @@
   <header class="topbar">
     <a class="topbar-back" href="index.html">← 返回</a>
     <span class="topbar-title">我的自选</span>
-    <div style="width:40px;"></div>
+    <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
   </header>
 
   <!-- 页面标题 -->
@@ -48,6 +48,16 @@
   </div>
 
 </div>
+
+<!-- 导航侧边栏 -->
+<div class="nav-drawer-overlay" id="navOverlay"></div>
+<nav class="nav-drawer" id="navDrawer" role="navigation" aria-label="导航菜单">
+  <div class="nav-drawer-header">导航</div>
+  <a class="nav-link" href="index.html"><span class="nav-icon">🏠</span> 首页 · 求一票</a>
+  <a class="nav-link" href="strategies.html"><span class="nav-icon">📚</span> 选股攻略</a>
+  <a class="nav-link" href="history.html"><span class="nav-icon">📋</span> 我的记录</a>
+  <a class="nav-link" href="my-favorites.html"><span class="nav-icon">⭐</span> 我的自选</a>
+</nav>
 
 <!-- Toast -->
 <div class="toast hidden" id="toast"></div>

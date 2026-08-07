@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="description" content="选股攻略 — 经典主流选股策略盘点，可按策略生成 AI 选股建议" />
+<title>选股攻略 · 求一票</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/strategies.css" />
+</head>
+<body>
+<div class="scanlines"></div>
+
+<div class="app">
+
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <a href="index.html" class="back-btn" aria-label="返回首页">←</a>
+    <span class="topbar-title">选股攻略</span>
+    <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+  </header>
+
+  <!-- 页面标题 -->
+  <section class="stg-hero">
+    <h1>📚 经典选股策略盘点</h1>
+    <p class="stg-subtitle">六大流派 ·<span id="stgCount">--</span> 种主流方法论，选一种，让 AI 按它的标准帮你筛股</p>
+  </section>
+
+  <!-- 分类筛选 -->
+  <div class="stg-cat-bar" id="stgCatBar"></div>
+
+  <!-- 加载中 -->
+  <div class="stg-loading" id="stgLoading">
+    <div class="stg-loading-spinner"></div>
+    <p>加载策略库…</p>
+  </div>
+
+  <!-- 策略分组列表 -->
+  <div id="stgGroups" class="hidden"></div>
+
+  <p class="disclaimer">
+    以上策略均为公开的投资方法论科普整理，AI 生成的选股结果可能非实时/准确数据，仅供学习与娱乐参考，不构成投资建议。股市有风险，投资需谨慎独立判断。
+  </p>
+
+</div>
+
+<!-- 策略详情 + 选股弹层 -->
+<div class="modal hidden" id="stgModal">
+  <div class="modal-mask" id="stgModalMask"></div>
+  <div class="modal-content stg-modal-content">
+    <button class="modal-close" id="stgModalClose" aria-label="关闭">×</button>
+
+    <!-- 策略详情 -->
+    <div id="stgDetail"></div>
+
+    <!-- 补充条件表单 -->
+    <div class="stg-form" id="stgForm">
+      <h3>🎯 补充你的条件（可选）</h3>
+      <div class="stg-form-grid">
+        <label class="stg-field">
+          <span>市场</span>
+          <select id="stgMarket">
+            <option value="">不限</option>
+            <option value="A股">A股</option>
+            <option value="港股">港股</option>
+            <option value="美股">美股</option>
+          </select>
+        </label>
+        <label class="stg-field">
+          <span>市值偏好</span>
+          <select id="stgCap">
+            <option value="">不限</option>
+            <option value="大盘股">大盘股</option>
+            <option value="中盘股">中盘股</option>
+            <option value="小盘股">小盘股</option>
+          </select>
+        </label>
+        <label class="stg-field">
+          <span>持有周期</span>
+          <select id="stgHorizon">
+            <option value="">不限</option>
+            <option value="短线（数周）">短线（数周）</option>
+            <option value="中线（数月）">中线（数月）</option>
+            <option value="长线（1年以上）">长线（1年以上）</option>
+          </select>
+        </label>
+        <label class="stg-field">
+          <span>风险偏好</span>
+          <select id="stgRisk">
+            <option value="">不限</option>
+            <option value="保守">保守</option>
+            <option value="平衡">平衡</option>
+            <option value="进取">进取</option>
+          </select>
+        </label>
+        <label class="stg-field stg-field-wide">
+          <span>板块偏好</span>
+          <input type="text" id="stgSector" maxlength="20" placeholder="如 半导体 / 白酒 / 新能源（可留空）" />
+        </label>
+        <label class="stg-field stg-field-wide">
+          <span>其他要求</span>
+          <input type="text" id="stgExtra" maxlength="60" placeholder="如 希望股息率高一些、避开次新股（可留空）" />
+        </label>
+      </div>
+
+      <button class="btn btn-primary stg-run-btn" id="stgRunBtn">
+        <span class="btn-icon">🔍</span>
+        <span class="btn-text">按此策略选股</span>
+      </button>
+    </div>
+
+    <!-- 选股中 -->
+    <div class="stg-running hidden" id="stgRunning">
+      <div class="stg-run-machine">
+        <div class="stg-run-reels">
+          <span class="stg-run-reel">🔍</span>
+          <span class="stg-run-reel">📊</span>
+          <span class="stg-run-reel">✅</span>
+        </div>
+        <div class="stg-run-lights"></div>
+      </div>
+      <p class="stg-run-text">AI 正在按策略标准逐项筛查…</p>
+      <p class="stg-run-subtext" id="stgRunSubtext">对照关键指标，评估匹配度</p>
+    </div>
+
+    <!-- 选股结果 -->
+    <div class="stg-result hidden" id="stgResult"></div>
+  </div>
+</div>
+
+<!-- 导航侧边栏 -->
+<div class="nav-drawer-overlay" id="navOverlay"></div>
+<nav class="nav-drawer" id="navDrawer" role="navigation" aria-label="导航菜单">
+  <div class="nav-drawer-header">导航</div>
+  <a class="nav-link" href="index.html"><span class="nav-icon">🏠</span> 首页 · 求一票</a>
+  <a class="nav-link" href="strategies.html"><span class="nav-icon">📚</span> 选股攻略</a>
+  <a class="nav-link" href="history.html"><span class="nav-icon">📋</span> 我的记录</a>
+  <a class="nav-link" href="my-favorites.html"><span class="nav-icon">⭐</span> 我的自选</a>
+</nav>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="js/common.js"></script>
+<script src="js/strategies.js"></script>
+</body>
+</html>
