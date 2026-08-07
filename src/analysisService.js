@@ -294,4 +294,69 @@ function generateFallbackDividendTable(name) {
   }));
 }
 
-module.exports = { generateAnalysis, normalizeQuery, ALLOWED_MARKETS };
+const DIVIDEND_SYSTEM_PROMPT = `你是A股/港股/美股分红数据查询助手。根据你的训练知识，给出指定股票近五年（2021-2025）的现金分红数据。
+
+规则：
+- 恰好输出 5 条，年份为 2021/2022/2023/2024/2025，按从早到晚排列。
+- dividendPerShare 为每股现金分红（税前，单位元/港元/美元），保留2位小数；确实未分红的年份填 "0"。
+- dividendYield 为按当年均价计算的股息率，如 "3.25%"；未分红填 "0%"。
+- payoutRatio 为分红占归母净利润的比例，如 "35%"；未分红填 "0%"。
+- specialDividend 填特别分红/送转信息，如 "无"、"10转3"。
+- summary 一句话总结分红特点（不超过60字）。
+- 数字基于训练知识合理估算，不要声称是实时数据。
+- 严格只输出 JSON，不要代码块围栏，不要任何额外文字。
+
+输出格式：
+{
+  "dividendTable": [
+    {"year": "2021", "dividendPerShare": "0.35", "dividendYield": "3.2%", "payoutRatio": "35%", "specialDividend": "无"}
+  ],
+  "summary": "一句话总结"
+}`;
+
+/**
+ * 单独补全某只股票的近五年分红数据（用于旧缓存缺失分红字段时按需补全）。
+ * @param {string} rawCode
+ * @param {string} rawName
+ * @param {string} rawMarket
+ * @returns {Promise<{dividendTable: Array, dividendSummary: string}|null>} 失败返回 null
+ */
+async function generateDividendData(rawCode, rawName, rawMarket) {
+  const query = normalizeQuery(rawCode, rawName, rawMarket);
+  if (!query.code || !query.name) return null;
+
+  const messages = [
+    { role: 'system', content: DIVIDEND_SYSTEM_PROMPT },
+    {
+      role: 'user',
+      content: `请给出「${query.name}」（代码：${query.code}，市场：${query.market}）近五年的现金分红数据，货币单位为${MARKET_CURRENCY[query.market]}（数字不带货币符号）。`,
+    },
+  ];
+
+  try {
+    const content = await chatCompletion(messages);
+    const parsed = extractJson(content);
+    if (!parsed || !Array.isArray(parsed.dividendTable) || parsed.dividendTable.length === 0) {
+      return null;
+    }
+    const table = parsed.dividendTable
+      .filter((r) => r && (r.year != null))
+      .slice(0, 5)
+      .map((r) => ({
+        year: sanitizeFreeText(String(r.year), 12),
+        dividendPerShare: sanitizeFreeText(String(r.dividendPerShare == null ? '0' : r.dividendPerShare), 12),
+        dividendYield: sanitizeFreeText(String(r.dividendYield == null ? '0%' : r.dividendYield), 12),
+        payoutRatio: sanitizeFreeText(String(r.payoutRatio == null ? '0%' : r.payoutRatio), 12),
+        specialDividend: sanitizeFreeText(String(r.specialDividend == null ? '无' : r.specialDividend), 20) || '无',
+      }));
+    if (table.length === 0) return null;
+    return {
+      dividendTable: table,
+      dividendSummary: sanitizeFreeText(parsed.summary, 120) || '',
+    };
+  } catch (err) {
+    return null;
+  }
+}
+
+module.exports = { generateAnalysis, generateDividendData, normalizeQuery, ALLOWED_MARKETS };

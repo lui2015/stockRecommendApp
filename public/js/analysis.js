@@ -180,41 +180,67 @@
         tbody.appendChild(tr);
       });
     }
-    // 画柱状图（每股分红）
+    // 画柱状图（每股分红）— 延后到 showState('report') 之后绘制，
+    // 否则容器 clientWidth 为 0，canvas 会被 CSS 拉伸导致变形
+  }
+
+  function drawDividendChartLater(data) {
+    const table = data.dividendTable || [];
     const canvas = document.getElementById('dividendChart');
     if (canvas && table.length) {
       drawDividendChart(canvas, table);
     }
   }
 
+  // Canvas 圆角矩形辅助函数
+  function roundRect(ctx, x, y, w, h, r) {
+    if (h <= 0 || w <= 0) return;
+    const rr = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.lineTo(x + w - rr, y);
+    ctx.arcTo(x + w, y, x + w, y + rr, rr);
+    ctx.lineTo(x + w, y + h - rr);
+    ctx.arcTo(x + w, y + h, x + w - rr, y + h, rr);
+    ctx.lineTo(x + rr, y + h);
+    ctx.arcTo(x, y + h, x, y + h - rr, rr);
+    ctx.lineTo(x, y + rr);
+    ctx.arcTo(x, y, x + rr, y, rr);
+    ctx.closePath();
+  }
+
   function drawDividendChart(canvas, table) {
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    const W = canvas.parentElement.clientWidth - 32;
+    const W = (canvas.parentElement && canvas.parentElement.clientWidth) ? canvas.parentElement.clientWidth - 32 : 300;
     const H = 220;
     canvas.width = W * dpr; canvas.height = H * dpr;
     canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const pad = { t: 24, r: 20, b: 36, l: 48 };
-    const cw = W - pad.l - pad.r;
-    const ch = H - pad.t - pad.b;
+    // 清空画布
+    ctx.clearRect(0, 0, W, H);
+
+    const pad = { t: 30, r: 20, b: 40, l: 50 };
+    const cw = Math.max(W - pad.l - pad.r, 100);
+    const ch = Math.max(H - pad.t - pad.b, 60);
 
     // 解析数值
     const vals = table.map((r) => parseNum(r.dividendPerShare));
     const maxVal = Math.max(...vals.map(Math.abs), 0.01);
     const yMax = Math.ceil(maxVal * 1.15 * 10) / 10;
 
-    // 背景网格
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    // 背景网格 + Y轴刻度（从上到下递减）
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
     ctx.lineWidth = 1;
+    ctx.font = '10px SF Mono, Consolas, monospace';
+    ctx.textAlign = 'right';
     for (let i = 0; i <= 4; i++) {
       const y = pad.t + ch * (i / 4);
+      const val = yMax * (1 - i / 4);
       ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
       ctx.fillStyle = 'rgba(255,255,255,0.35)';
-      ctx.font = '10px SF Mono, Consolas, monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText(yMax.toFixed(2), pad.l - 6, y + 3);
+      ctx.fillText(val.toFixed(2), pad.l - 6, y + 3);
     }
 
     // 柱子
@@ -223,31 +249,33 @@
     table.forEach((r, i) => {
       const v = Math.max(0, vals[i]);
       const x = pad.l + gap + i * (barW + gap);
-      const h = (v / yMax) * ch;
-      const y = pad.t + ch - h;
+      const barH = (v / yMax) * ch;
+      const barY = pad.t + ch - barH;
 
-      const grad = ctx.createLinearGradient(x, y, x, pad.t + ch);
-      grad.addColorStop(0, '#fbbf24');
-      grad.addColorStop(1, '#d97706');
-      roundRect(ctx, x, y, barW, h, 3);
-      ctx.fillStyle = grad;
-      ctx.fill();
+      if (barH > 0.5) {
+        const grad = ctx.createLinearGradient(x, barY, x, pad.t + ch);
+        grad.addColorStop(0, '#fbbf24');
+        grad.addColorStop(1, '#d97706');
+        roundRect(ctx, x, barY, barW, barH, 3);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
 
-      // 数值标签
+      // 数值标签（柱顶上方）
       ctx.fillStyle = '#fde68a';
       ctx.font = 'bold 11px SF Mono, Consolas, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(r.dividendPerShare, x + barW / 2, y - 5);
+      ctx.fillText(String(r.dividendPerShare || '0'), x + barW / 2, barY - 6);
 
-      // 年份
-      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      // 年份（X轴下方）
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
       ctx.font = '11px system-ui, sans-serif';
-      ctx.fillText(r.year, x + barW / 2, pad.t + ch + 18);
+      ctx.fillText(String(r.year || ''), x + barW / 2, pad.t + ch + 18);
     });
 
-    // Y轴标题
+    // Y轴标题（竖排）
     ctx.save();
-    ctx.translate(12, pad.t + ch / 2);
+    ctx.translate(14, pad.t + ch / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.fillStyle = 'rgba(251,191,36,0.7)';
     ctx.font = '11px system-ui, sans-serif';
@@ -661,10 +689,12 @@
       requestAnimationFrame(() => {
         drawMedianChart(data);
         drawProfitChart(data);
+        drawDividendChartLater(data);
       });
       window.addEventListener('resize', () => {
         drawMedianChart(data);
         drawProfitChart(data);
+        drawDividendChartLater(data);
       });
     } catch (err) {
       errorMsgEl.textContent = (err && err.message) || '分析生成失败，请重试';
