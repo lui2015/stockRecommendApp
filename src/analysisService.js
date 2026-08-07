@@ -76,6 +76,11 @@ JSON 输出格式（字段必须齐全，attitudeLevel 只能是 bullish/neutral
     {"year": "年份，如 2021", "netProfit": "归母净利润，如 25.45亿或-3.2亿", "yoy": "同比增速，如 +12.3%或-8.1%", "revenue": "营业收入，如 305亿", "revenueYoy": "营收同比，如 +18%", "grossMargin": "毛利率，如 38.5%", "netMargin": "净利率，如 8.3%", "roe": "加权ROE，如 15.2%"}
     // 恰好5条，按年份从早到晚排列，覆盖最近5年完整财年，当前是2026年，应为2021/2022/2023/2024/2025
   ],
+  "dividendTable": [
+    {"year": "年份，如 2021", "dividendPerShare": "每股分红（元），如 0.35或0", "dividendYield": "股息率（%），如 3.2%或0%", "payoutRatio": "分红率/派息比例（%），如 35%或0", "specialDividend": "是否有特别分红，如 '无' 或 '10送3' 等"}
+    // 恰好5条，按年份从早到晚排列，覆盖最近5年完整财年，当前是2026年，应为2021/2022/2023/2024/2025
+  ],
+  "dividendSummary": "一句话总结该股近五年分红特点（如：连续5年稳定分红、高股息蓝筹、从不分红等）",
   "macro": {
     "indices": [ {"name": "上证/沪深300/恒指等，按market选相关指数", "value": "点位数值", "changePercent": "涨跌幅数值，可带正负号"} ],
     "points": ["宏观/行业要闻1", "宏观/行业要闻2", "宏观/行业要闻3", "无重大系统性风险信号，整体环境XX（如中性偏暖/中性偏冷）"]
@@ -167,6 +172,12 @@ function validateResult(obj) {
 
   if (!Array.isArray(obj.profitTable) || obj.profitTable.length < 4) return false;
   if (!obj.profitTable.every((r) => r && isNonEmptyString(r.year) && isNonEmptyString(r.netProfit))) return false;
+
+  // dividendTable 可选（兼容旧缓存），有则校验格式
+  if (obj.dividendTable != null) {
+    if (!Array.isArray(obj.dividendTable)) return false;
+    if (obj.dividendTable.length > 0 && !obj.dividendTable.every((r) => r && isNonEmptyString(r.year))) return false;
+  }
 
   if (!obj.macro || typeof obj.macro !== 'object' || !Array.isArray(obj.macro.points) || obj.macro.points.length < 2) return false;
 
@@ -262,12 +273,25 @@ async function generateAnalysis(rawCode, rawName, rawMarket) {
     fiveYearMedian: Number(parsed.fiveYearMedian),
     medianNote: parsed.medianNote,
     profitTable: parsed.profitTable,
+    dividendTable: parsed.dividendTable && parsed.dividendTable.length > 0 ? parsed.dividendTable : generateFallbackDividendTable(parsed.name),
+    dividendSummary: sanitizeFreeText(parsed.dividendSummary, 120) || '该股近五年分红数据有限，建议查阅公司公告获取详细信息。',
     macro: parsed.macro,
     roundtable: parsed.roundtable,
     summary: parsed.summary,
     dataAsOf: new Date().toISOString().slice(0, 10),
     disclaimer: '以上分析由AI大模型基于训练知识生成，并非真实行情/财务数据的实时查询结果，可能不准确，仅供娱乐参考，不构成投资建议。股市有风险，投资决策需独立判断。',
   };
+}
+
+function generateFallbackDividendTable(name) {
+  const baseYear = 2021;
+  return Array.from({ length: 5 }, (_, i) => ({
+    year: String(baseYear + i),
+    dividendPerShare: '0',
+    dividendYield: '0%',
+    payoutRatio: '0%',
+    specialDividend: '无',
+  }));
 }
 
 module.exports = { generateAnalysis, normalizeQuery, ALLOWED_MARKETS };

@@ -157,6 +157,105 @@
     });
   }
 
+  // ========== 近五年分红数据 ==========
+  function renderDividendSection(data) {
+    const section = document.getElementById('dividendSection');
+    if (!section) return;
+    const table = data.dividendTable || [];
+    const summaryEl = document.getElementById('dividendSummary');
+    if (summaryEl) {
+      summaryEl.textContent = data.dividendSummary || '';
+    }
+    // 渲染表格
+    const tbody = document.querySelector('#dividendTable tbody');
+    if (tbody) {
+      tbody.innerHTML = '';
+      table.forEach((row) => {
+        const tr = document.createElement('tr');
+        ['year', 'dividendPerShare', 'dividendYield', 'payoutRatio', 'specialDividend'].forEach((key) => {
+          const td = document.createElement('td');
+          td.textContent = row[key] == null ? '--' : row[key];
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+    // 画柱状图（每股分红）
+    const canvas = document.getElementById('dividendChart');
+    if (canvas && table.length) {
+      drawDividendChart(canvas, table);
+    }
+  }
+
+  function drawDividendChart(canvas, table) {
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.parentElement.clientWidth - 32;
+    const H = 220;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const pad = { t: 24, r: 20, b: 36, l: 48 };
+    const cw = W - pad.l - pad.r;
+    const ch = H - pad.t - pad.b;
+
+    // 解析数值
+    const vals = table.map((r) => parseNum(r.dividendPerShare));
+    const maxVal = Math.max(...vals.map(Math.abs), 0.01);
+    const yMax = Math.ceil(maxVal * 1.15 * 10) / 10;
+
+    // 背景网格
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.t + ch * (i / 4);
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.font = '10px SF Mono, Consolas, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(yMax.toFixed(2), pad.l - 6, y + 3);
+    }
+
+    // 柱子
+    const barW = Math.min(cw / table.length * 0.55, 44);
+    const gap = (cw - barW * table.length) / (table.length + 1);
+    table.forEach((r, i) => {
+      const v = Math.max(0, vals[i]);
+      const x = pad.l + gap + i * (barW + gap);
+      const h = (v / yMax) * ch;
+      const y = pad.t + ch - h;
+
+      const grad = ctx.createLinearGradient(x, y, x, pad.t + ch);
+      grad.addColorStop(0, '#fbbf24');
+      grad.addColorStop(1, '#d97706');
+      roundRect(ctx, x, y, barW, h, 3);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // 数值标签
+      ctx.fillStyle = '#fde68a';
+      ctx.font = 'bold 11px SF Mono, Consolas, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(r.dividendPerShare, x + barW / 2, y - 5);
+
+      // 年份
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '11px system-ui, sans-serif';
+      ctx.fillText(r.year, x + barW / 2, pad.t + ch + 18);
+    });
+
+    // Y轴标题
+    ctx.save();
+    ctx.translate(12, pad.t + ch / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = 'rgba(251,191,36,0.7)';
+    ctx.font = '11px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('每股分红(元)', 0, 0);
+    ctx.restore();
+  }
+
   function macroSpan(idx) {
     const span = document.createElement('span');
     const strong = document.createElement('strong');
@@ -553,6 +652,7 @@
       renderSnapshot(data);
       renderMedianTable(data);
       renderProfitTable(data);
+      renderDividendSection(data);
       renderMacro(data);
       renderRoundtable(data);
       renderSummary(data);
