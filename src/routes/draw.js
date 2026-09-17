@@ -103,6 +103,7 @@ router.post('/draw', perMinuteLimiter, perDayLimiter, async (req, res) => {
       },
       dataAsOf: result.dataAsOf,
       disclaimer: result.disclaimer,
+      fallback: !!result.fallback,
     });
   } catch (err) {
     if (err instanceof HunyuanError) {

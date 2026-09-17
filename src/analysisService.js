@@ -20,8 +20,9 @@
  * （“数字说话，禁止用模型记忆补数据”）。
  */
 
-const { chatCompletion, HunyuanError } = require('./hunyuanClient');
+const { chatCompletion, HunyuanError, isHunyuanConfigured } = require('./hunyuanClient');
 const { fetchLatestQuote } = require('./quoteService');
+const { buildFallbackAnalysis } = require('./fallbackRecommend');
 
 const ALLOWED_MARKETS = ['A股', '港股', '美股'];
 const MARKET_CURRENCY = { A股: '元', 港股: '港元', 美股: '美元' };
@@ -220,24 +221,41 @@ async function generateAnalysis(rawCode, rawName, rawMarket) {
 
   let parsed = null;
   let lastRawContent = '';
+  let usedFallback = false;
 
-  for (let attempt = 0; attempt < 2 && !parsed; attempt += 1) {
-    if (attempt === 1) {
-      messages.push({
-        role: 'user',
-        content: '你上一次的输出不是合法 JSON 或字段不完整/attitudeLevel 取值不对，请重新只输出符合要求的完整 JSON，不要有多余文字。',
-      });
+  if (isHunyuanConfigured()) {
+    try {
+      for (let attempt = 0; attempt < 2 && !parsed; attempt += 1) {
+        if (attempt === 1) {
+          messages.push({
+            role: 'user',
+            content: '你上一次的输出不是合法 JSON 或字段不完整/attitudeLevel 取值不对，请重新只输出符合要求的完整 JSON，不要有多余文字。',
+          });
+        }
+        const content = await chatCompletion(messages);
+        lastRawContent = content;
+        const candidate = extractJson(content);
+        if (candidate && validateResult(candidate)) {
+          parsed = candidate;
+        }
+      }
+    } catch (err) {
+      if (!(err instanceof HunyuanError)) throw err;
+      console.warn('[analysis] 混元调用失败，改用本地降级报告:', err.message);
     }
-    const content = await chatCompletion(messages);
-    lastRawContent = content;
-    const candidate = extractJson(content);
-    if (candidate && validateResult(candidate)) {
-      parsed = candidate;
-    }
+  } else {
+    console.warn('[analysis] 未配置 HUNYUAN_API_KEY，使用本地降级报告');
   }
 
   if (!parsed) {
-    throw new HunyuanError(`模型未能返回合法的分析结果：${lastRawContent.slice(0, 200)}`);
+    let quote = null;
+    try {
+      quote = await fetchLatestQuote(query.code, query.market);
+    } catch (e) {
+      quote = null;
+    }
+    parsed = buildFallbackAnalysis(query, quote);
+    usedFallback = true;
   }
 
   const market = ALLOWED_MARKETS.includes(parsed.market) ? parsed.market : query.market;
@@ -279,7 +297,10 @@ async function generateAnalysis(rawCode, rawName, rawMarket) {
     roundtable: parsed.roundtable,
     summary: parsed.summary,
     dataAsOf: new Date().toISOString().slice(0, 10),
-    disclaimer: '以上分析由AI大模型基于训练知识生成，并非真实行情/财务数据的实时查询结果，可能不准确，仅供娱乐参考，不构成投资建议。股市有风险，投资决策需独立判断。',
+    disclaimer: usedFallback
+      ? '大模型暂不可用，本页由本地推荐规则生成示意报告；股价尽量取自公开行情，不构成投资建议。'
+      : '以上分析由AI大模型基于训练知识生成，并非真实行情/财务数据的实时查询结果，可能不准确，仅供娱乐参考，不构成投资建议。股市有风险，投资决策需独立判断。',
+    fallback: usedFallback,
   };
 }
 

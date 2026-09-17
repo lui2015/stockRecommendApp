@@ -13,9 +13,10 @@
  * 仅供娱乐与方法论学习参考，不构成投资建议。股价会尽量用实时行情接口覆盖。
  */
 
-const { chatCompletion, HunyuanError } = require('./hunyuanClient');
+const { chatCompletion, HunyuanError, isHunyuanConfigured } = require('./hunyuanClient');
 const { fetchLatestQuote } = require('./quoteService');
 const { getStrategy } = require('./strategyLibrary');
+const { buildFallbackStrategyResult } = require('./fallbackRecommend');
 
 const ALLOWED_MARKETS = ['A股', '港股', '美股'];
 const ALLOWED_CAPS = ['不限', '大盘股', '中盘股', '小盘股'];
@@ -164,25 +165,37 @@ async function generateByStrategy(strategyId, rawOptions, recentCodes = []) {
 
   let parsed = null;
   let lastRaw = '';
-  const MAX_ATTEMPTS = 3;
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
-    if (attempt > 0) {
-      messages.push({
-        role: 'user',
-        content: '你上一次的输出不是合法 JSON 或字段不完整（尤其是 fitPoints / risks）。请重新只输出符合要求的 JSON，不要有多余文字。',
-      });
+  let usedFallback = false;
+
+  if (isHunyuanConfigured()) {
+    try {
+      const MAX_ATTEMPTS = 3;
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+        if (attempt > 0) {
+          messages.push({
+            role: 'user',
+            content: '你上一次的输出不是合法 JSON 或字段不完整（尤其是 fitPoints / risks）。请重新只输出符合要求的 JSON，不要有多余文字。',
+          });
+        }
+        const content = await chatCompletion(messages, { temperature: 0.7 });
+        lastRaw = content;
+        const candidate = extractJson(content);
+        if (candidate && validateResult(candidate)) {
+          parsed = candidate;
+          break;
+        }
+      }
+    } catch (err) {
+      if (!(err instanceof HunyuanError)) throw err;
+      console.warn('[strategy] 混元调用失败，改用本地推荐:', err.message);
     }
-    const content = await chatCompletion(messages, { temperature: 0.7 });
-    lastRaw = content;
-    const candidate = extractJson(content);
-    if (candidate && validateResult(candidate)) {
-      parsed = candidate;
-      break;
-    }
+  } else {
+    console.warn('[strategy] 未配置 HUNYUAN_API_KEY，使用本地推荐');
   }
 
   if (!parsed) {
-    throw new HunyuanError(`模型未能返回合法的策略选股结果：${lastRaw.slice(0, 200)}`);
+    parsed = buildFallbackStrategyResult(strategy, options, recentCodes);
+    usedFallback = true;
   }
 
   const market = ALLOWED_MARKETS.includes(parsed.market) ? parsed.market : (options.market || 'A股');
@@ -229,10 +242,12 @@ async function generateByStrategy(strategyId, rawOptions, recentCodes = []) {
     risks: parsed.risks.filter((r) => typeof r === 'string').slice(0, 5).map((r) => r.slice(0, 200)),
     options,
     dataAsOf: new Date().toISOString().slice(0, 10),
-    disclaimer:
-      priceSource === 'realtime'
+    disclaimer: usedFallback
+      ? '大模型暂不可用，本结果由本地策略规则近似匹配；股价尽量取自公开行情，仅供方法论学习与娱乐参考，不构成投资建议。'
+      : priceSource === 'realtime'
         ? '股价为实时行情接口数据；策略分析内容由AI大模型基于训练知识生成，仅供方法论学习与娱乐参考，不构成投资建议。'
         : '股价与分析内容均由AI大模型基于训练知识估算，可能非实时/准确，仅供方法论学习与娱乐参考，不构成投资建议。',
+    fallback: usedFallback,
   };
 }
 

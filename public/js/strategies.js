@@ -238,6 +238,9 @@
         body: JSON.stringify({ strategyId: currentStrategy.id, options }),
       });
       renderResult(resp);
+      if (resp.fallback) {
+        QYP.toast('大模型暂不可用，已使用本地推荐', 3600);
+      }
     } catch (err) {
       stgRunning.classList.add('hidden');
       stgForm.classList.remove('hidden');

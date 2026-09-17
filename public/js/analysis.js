@@ -686,6 +686,9 @@
       renderSummary(data);
       document.getElementById('disclaimerText').textContent = `⚠️ ${data.disclaimer || ''}`;
       showState('report');
+      if (data.fallback) {
+        QYP.toast('大模型暂不可用，已使用本地推荐', 3600);
+      }
       requestAnimationFrame(() => {
         drawMedianChart(data);
         drawProfitChart(data);

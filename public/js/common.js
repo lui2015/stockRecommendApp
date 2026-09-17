@@ -50,13 +50,13 @@ const QYP = (function () {
   }
 
   let toastTimer = null;
-  function toast(msg) {
+  function toast(msg, duration) {
     const el = document.getElementById('toast');
     if (!el) return;
     el.textContent = msg;
     el.classList.remove('hidden');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.add('hidden'), 2200);
+    toastTimer = setTimeout(() => el.classList.add('hidden'), Number(duration) > 0 ? Number(duration) : 2200);
   }
 
   return { getDeviceId, api, escapeHtml, toast };

@@ -19,8 +19,9 @@
  * 查询 + 大模型仅做文本组织的方案，以符合 Skill 原始设计（"数字说话，禁止用模型记忆补数据"）。
  */
 
-const { chatCompletion, HunyuanError } = require('./hunyuanClient');
+const { chatCompletion, HunyuanError, isHunyuanConfigured } = require('./hunyuanClient');
 const { fetchLatestQuote } = require('./quoteService');
+const { pickFallbackStock, buildFallbackRecommendation } = require('./fallbackRecommend');
 
 const ALLOWED_MARKETS = ['A股', '港股', '美股'];
 const ALLOWED_STYLES = ['价值', '成长', '高股息', '低估值', '红利'];
@@ -149,34 +150,45 @@ async function generateRecommendation(rawConstraints, recentCodes = []) {
   let parsed = null;
   let lastValid = null;
   let lastRawContent = '';
+  let usedFallback = false;
 
-  // 最多重试 4 次：兼顾 JSON 合法性校验与"避免重复最近抽过的标的"
-  const MAX_ATTEMPTS = 4;
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
-    if (attempt > 0) {
-      messages.push({
-        role: 'user',
-        content: '你上一次的输出不是合法 JSON、字段不完整，或又重复了刚推荐过的股票。请重新只输出符合要求且【不同于最近推荐】的 JSON，不要有多余文字。',
-      });
+  if (isHunyuanConfigured()) {
+    // 最多重试 4 次：兼顾 JSON 合法性校验与"避免重复最近抽过的标的"
+    const MAX_ATTEMPTS = 4;
+    try {
+      for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+        if (attempt > 0) {
+          messages.push({
+            role: 'user',
+            content: '你上一次的输出不是合法 JSON、字段不完整，或又重复了刚推荐过的股票。请重新只输出符合要求且【不同于最近推荐】的 JSON，不要有多余文字。',
+          });
+        }
+        const content = await chatCompletion(messages, { temperature: 0.9 });
+        lastRawContent = content;
+        const candidate = extractJson(content);
+        if (!candidate || !validateResult(candidate)) continue;
+        lastValid = candidate;
+        const code = candidate.code.trim();
+        if (!recentCodes.length || !recentCodes.includes(code)) {
+          parsed = candidate;
+          break;
+        }
+      }
+    } catch (err) {
+      if (!(err instanceof HunyuanError)) throw err;
+      console.warn('[recommend] 混元调用失败，改用本地降级:', err.message);
     }
-    const content = await chatCompletion(messages, { temperature: 0.9 });
-    lastRawContent = content;
-    const candidate = extractJson(content);
-    if (!candidate || !validateResult(candidate)) continue;
-    lastValid = candidate;
-    const code = candidate.code.trim();
-    if (!recentCodes.length || !recentCodes.includes(code)) {
-      parsed = candidate;
-      break;
-    }
+  } else {
+    console.warn('[recommend] 未配置 HUNYUAN_API_KEY，使用本地降级荐股');
   }
 
-  // 兜底：若模型始终抽到最近重复标的，仍返回最后一次合法结果，避免直接报错让用户摇不出
+  // 兜底：模型结果不合法/重复/不可用时，改用本地股票池，保证始终能摇出结果
   if (!parsed) {
     if (lastValid) {
       parsed = lastValid;
     } else {
-      throw new HunyuanError(`模型未能返回合法的推荐结果：${lastRawContent.slice(0, 200)}`);
+      parsed = buildFallbackRecommendation(pickFallbackStock(constraints, recentCodes));
+      usedFallback = true;
     }
   }
 
@@ -198,8 +210,9 @@ async function generateRecommendation(rawConstraints, recentCodes = []) {
     // 行情获取失败，静默回退到模型估值价
   }
 
-  const priceDisclaimer =
-    priceSource === 'realtime'
+  const priceDisclaimer = usedFallback
+    ? '大模型暂不可用，本结果由本地推荐规则生成；股价尽量取自公开行情，仅供娱乐参考，不构成投资建议。'
+    : priceSource === 'realtime'
       ? '股价为腾讯实时行情接口数据；其余分析内容由AI大模型基于训练知识生成，仅供娱乐参考，不构成投资建议。'
       : '股价由AI大模型基于训练知识估算，可能非实时/准确；其余内容仅供娱乐参考，不构成投资建议。';
 
@@ -219,6 +232,7 @@ async function generateRecommendation(rawConstraints, recentCodes = []) {
     constraints,
     dataAsOf: new Date().toISOString().slice(0, 10),
     disclaimer: priceDisclaimer,
+    fallback: usedFallback,
   };
 }
 

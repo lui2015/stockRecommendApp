@@ -413,7 +413,12 @@
       // 先停止老虎机滚动（带动画），再显示结果
       stopRolling(resp.code || '');
       // 等待所有数字停止后显示结果（最后一列延迟约 1400ms + 滚动时间）
-      setTimeout(() => showResult(resp), 2200);
+      setTimeout(() => {
+        showResult(resp);
+        if (resp.fallback) {
+          QYP.toast('大模型暂不可用，已使用本地推荐', 3600);
+        }
+      }, 2200);
     } catch (err) {
       // 出错恢复
       rollingTimers.forEach(t => clearInterval(t));

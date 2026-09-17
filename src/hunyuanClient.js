@@ -12,6 +12,10 @@ const HUNYUAN_API_KEY = process.env.HUNYUAN_API_KEY || '';
 const HUNYUAN_MODEL = process.env.HUNYUAN_MODEL || 'hy3';
 const TIMEOUT_MS = Number(process.env.HUNYUAN_TIMEOUT_MS || 15000);
 
+function isHunyuanConfigured() {
+  return Boolean(HUNYUAN_API_KEY && !/^请填写/.test(HUNYUAN_API_KEY));
+}
+
 class HunyuanError extends Error {}
 
 /**
@@ -67,4 +71,4 @@ async function chatCompletion(messages, opts = {}) {
   }
 }
 
-module.exports = { chatCompletion, HunyuanError };
+module.exports = { chatCompletion, HunyuanError, isHunyuanConfigured };
